@@ -164,6 +164,7 @@ Renderer::Renderer(int width, int height, int flag, int holex, int holey, int ho
 #ifdef LINUX
 		fntsml = TTF_OpenFont( "fonts/default.ttf", 12 );
 		fntbg = TTF_OpenFont( "fonts/default.ttf", 24 );    
+        fntarc = TTF_OpenFont("fonts/press-start-2p/PressStart2P.ttf", 20);
 #endif LINUX
 
 #ifdef WIN32
@@ -204,6 +205,7 @@ Renderer::~Renderer(void)
 	
 	TTF_CloseFont( fntsml );
 	TTF_CloseFont( fntbg );
+    TTF_CloseFont( fntarc );
 	TTF_Quit();
 
 	SDL_FreeSurface(bBuffer);
@@ -460,12 +462,10 @@ Renderer::RenderCrossair(float x, float y, float size)
 
 void
 Renderer::RenderNewHighscore(std::string const& name) {
-	if(fntbg==NULL || fntsml==NULL) return;
-
     SDL_Color txt_color = { 255, 0, 0, 255 };
     
-    SDL_Surface* heading = TTF_RenderText_Solid(fntbg, "New Highscore!", txt_color);
-    SDL_Surface* username = TTF_RenderText_Solid(fntbg, name.c_str(), txt_color);
+    SDL_Surface* heading = TTF_RenderText_Solid(fntarc, "New Highscore!", txt_color);
+    SDL_Surface* username = TTF_RenderText_Solid(fntarc, name.c_str(), txt_color);
 
 	SDL_Rect rcDest = {150,50,0,0};
     SDL_BlitSurface(heading, NULL, bBuffer, &rcDest);
@@ -480,8 +480,6 @@ Renderer::RenderNewHighscore(std::string const& name) {
 
 void
 Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
-	if(fntbg==NULL || fntsml==NULL) return;
-
     SDL_Color txt_color = { 255-pos*20, 0, 0, 255 };
     std::stringstream strm;
 
@@ -489,11 +487,11 @@ Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
         << " : " << name 
         << " : " << std::setw(4) << points;
 
-    SDL_Surface* surf = TTF_RenderText_Solid(fntbg,
+    SDL_Surface* surf = TTF_RenderText_Solid(fntarc,
             strm.str().c_str(),
             txt_color);
 
-    SDL_Rect rcDest = { 200, 10 + pos*25, 0, 0 };
+    SDL_Rect rcDest = { 200, 10 + pos*30, 0, 0 };
     SDL_BlitSurface(surf, NULL, bBuffer, &rcDest);
     
     SDL_FreeSurface(surf);

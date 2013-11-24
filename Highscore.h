@@ -26,7 +26,13 @@ class Highscore {
 		std::vector<Entry> m_scores;	
 		std::string m_savefile;
 
+		void sort();
+
 };
 
+inline bool compare_highscore_entry(Highscore::Entry const& a,
+		Highscore::Entry const& b) {
+	return a.points < b.points;
+}
 
 /* vim: set noet fenc= ff=unix sts=0 sw=4 ts=4 : */

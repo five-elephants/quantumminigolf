@@ -76,6 +76,7 @@ private:
 	// fonts for the menu
 	TTF_Font *fntsml; 
 	TTF_Font *fntbg;
+	TTF_Font* fntarc;
 
 	int holex, holey, holer; // position and radius of the hole
 	int rball; // radius of the ball

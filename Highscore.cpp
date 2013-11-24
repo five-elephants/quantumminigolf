@@ -39,6 +39,8 @@ Highscore::load(std::string const& fn) {
 			m_scores.push_back(entry);
 		}
 	}
+
+	sort();
 }
 
 
@@ -74,6 +76,7 @@ Highscore::add(std::string const& name, int points) {
 	entry.name = name;
 	entry.points = points;
 	m_scores.push_back(entry);
+	sort();
 }
 
 
@@ -105,6 +108,7 @@ Highscore::get_new_highscore(Renderer& renderer, int points) {
 	} while( !done );
 
 	m_scores.push_back(e);
+	sort();
 }
 
 
@@ -122,4 +126,9 @@ Highscore::show_highscore(Renderer& renderer) {
 	while( SDL_PollEvent(NULL) == 0 );
 }
 
+
+void
+Highscore::sort() {
+	std::sort(m_scores.begin(), m_scores.end(), compare_highscore_entry);
+}
 /* vim: set noet fenc= ff=unix sts=0 sw=4 ts=4 : */
