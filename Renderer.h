@@ -50,6 +50,10 @@ public:
 	void RenderExtro(int result, int ypos); // show the "You win" / "You lose"
 	void RenderMenu(bool quantum);
 	void RenderCrossair(float x, float y, float size);
+	void RenderNewHighscore(std::string const& name);
+	void RenderHighscoreEntry(int position,
+			std::string const& name,
+			int points);
 
 	void Lock(void);
 	void Unlock(void);
@@ -76,3 +80,4 @@ private:
 	int holex, holey, holer; // position and radius of the hole
 	int rball; // radius of the ball
 };
+

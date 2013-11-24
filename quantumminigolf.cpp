@@ -222,7 +222,8 @@ int main(int argc, char **argv){
 			res = QMG_LOSE;
 
 		sdlclock = SDL_GetTicks();
-		while (SDL_PollEvent(NULL)==0)                    
+		//while (SDL_PollEvent(NULL)==0)                    
+		while ( (SDL_GetTicks() - sdlclock) < 2000 )  // show for 2 sec                   
 		{              
 			ypos = - 300 + (int)((float)(SDL_GetTicks() - sdlclock)/500*HEIGHT/2);
 
@@ -241,10 +242,15 @@ int main(int argc, char **argv){
 //		printf("rendered %d frames, quantum part framerate %2.1f fps. Goodbye\n", frames, framerate);
 		simulator.ClearWave();
 
-		// XXX show highscore
-		highscore.add("user", 1);
-		highscore.print();
+		// show highscore
+		highscore.get_new_highscore(renderer, 1);
+		renderer.RenderTrack();
+		renderer.RenderBall(posx, posy);
+		highscore.show_highscore(renderer);
 	}
 
 	return 0;
 }
+
+
+/* vim: set noet fenc=utf-8 ff=unix sts=0 sw=4 ts=4 : */

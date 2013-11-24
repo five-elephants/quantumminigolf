@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 Highscore::Highscore(std::string const& filename)
 	:	m_savefile(filename) {
@@ -73,6 +74,52 @@ Highscore::add(std::string const& name, int points) {
 	entry.name = name;
 	entry.points = points;
 	m_scores.push_back(entry);
+}
+
+
+void
+Highscore::get_new_highscore(Renderer& renderer, int points) {
+	SDL_Event ev;
+	bool done = false;
+	Entry e;
+	size_t char_i = 0;
+
+	e.name = "---";
+	e.points = points;
+
+	if( SDL_EnableKeyRepeat(0, 0) == -1 ) {
+		std::cerr << "disabling key repeat failed" << std::endl;
+	}
+
+	do {
+		renderer.RenderNewHighscore(e.name);
+		renderer.Blit();
+
+		if( SDL_PollEvent(&ev) != 0 ) {
+			if( ev.type == SDL_KEYDOWN ) {
+				e.name[char_i] = SDL_GetKeyName(ev.key.keysym.sym)[0];
+				if( ++char_i == 3 )
+					done = true;
+			}
+		}
+	} while( !done );
+
+	m_scores.push_back(e);
+}
+
+
+void
+Highscore::show_highscore(Renderer& renderer) {
+	bool done = false;
+
+	for(size_t pos=0; pos<std::min(10ul, m_scores.size()); ++pos) {
+		renderer.RenderHighscoreEntry(pos,
+				m_scores[pos].name, 
+				m_scores[pos].points);
+	}
+	renderer.Blit();
+
+	while( SDL_PollEvent(NULL) == 0 );
 }
 
 /* vim: set noet fenc= ff=unix sts=0 sw=4 ts=4 : */

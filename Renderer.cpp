@@ -18,6 +18,9 @@
 
 #include "Renderer.h"
 
+#include <sstream>
+#include <iomanip>
+
 // Constructor:
 // initialize all graphics buffers, load the complex color map and the fonts
 Renderer::Renderer(int width, int height, int flag, int holex, int holey, int holer, int rball)
@@ -452,6 +455,48 @@ Renderer::RenderCrossair(float x, float y, float size)
 			}
 		}
 	}
+}
+
+
+void
+Renderer::RenderNewHighscore(std::string const& name) {
+	if(fntbg==NULL || fntsml==NULL) return;
+
+    SDL_Color txt_color = { 255, 0, 0, 255 };
+    
+    SDL_Surface* heading = TTF_RenderText_Solid(fntbg, "New Highscore!", txt_color);
+    SDL_Surface* username = TTF_RenderText_Solid(fntbg, name.c_str(), txt_color);
+
+	SDL_Rect rcDest = {150,50,0,0};
+    SDL_BlitSurface(heading, NULL, bBuffer, &rcDest);
+
+    rcDest.y += 100;
+    SDL_BlitSurface(username, NULL, bBuffer, &rcDest);
+
+    SDL_FreeSurface(username);
+    SDL_FreeSurface(heading);
+}
+
+
+void
+Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
+	if(fntbg==NULL || fntsml==NULL) return;
+
+    SDL_Color txt_color = { 255-pos*20, 0, 0, 255 };
+    std::stringstream strm;
+
+    strm << std::setw(2) << pos+1 
+        << " : " << name 
+        << " : " << std::setw(4) << points;
+
+    SDL_Surface* surf = TTF_RenderText_Solid(fntbg,
+            strm.str().c_str(),
+            txt_color);
+
+    SDL_Rect rcDest = { 200, 10 + pos*25, 0, 0 };
+    SDL_BlitSurface(surf, NULL, bBuffer, &rcDest);
+    
+    SDL_FreeSurface(surf);
 }
 
 // Blit 
