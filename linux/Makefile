@@ -28,7 +28,7 @@ run:	$(TARGET)
 	./$(TARGET)
 
 lib: $(TARGET)
-	ar cq PortVideo.a $(CPPOBJECTS) $(COBJECTS)
+	ar cq libPortVideo.a $(CPPOBJECTS) $(COBJECTS)
 
 install: $(TARGET)
 	install -d $(DESTDIR)$(BINDIR)
