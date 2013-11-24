@@ -3,10 +3,17 @@
 
 def options(opt):
 	opt.load('compiler_cxx')
+	opt.add_option('--vr',
+				action='store',
+				default=False,
+				help='Build virtual reality verion of the game')
 
 def configure(conf):
 	conf.load('compiler_cxx')
 
+	conf.env.CXXFLAGS_FLAGS = [ '-DLINUX' ]
+	if conf.options.vr:
+		conf.env.CXXFLAGS_FLAGS.append('-DVR')
 	conf.env.LIBPATH_PORTVIDEO = '/home/simon/Projects/QM/PortVideoSDL/linux',
 	conf.env.INCLUDES_PORTVIDEO = [
 		'/home/simon/Projects/QM/PortVideoSDL/common',
@@ -33,6 +40,6 @@ def build(bld):
 		source = src,
 		target = 'quantumminigolf',
 		includes = '',
-		cxxflags = '-O0 -ggdb -malign-double -DLINUX',
-		use = 'PORTVIDEO SDL FFTW3F DC1394',
+		cxxflags = '-O2 -ggdb -malign-double',
+		use = 'FLAGS PORTVIDEO SDL FFTW3F DC1394',
 	)
