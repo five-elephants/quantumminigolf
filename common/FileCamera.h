@@ -21,6 +21,7 @@
 #define FileCamera_H
 
 #include <stdio.h>
+#include <unistd.h>
 #include "../common/CameraEngine.h"
 	
 class FileCamera : public CameraEngine

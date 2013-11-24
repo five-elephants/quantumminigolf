@@ -21,6 +21,7 @@
 #define FOLDERCAMERA_H
 
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #ifdef WIN32
 #include <io.h>
