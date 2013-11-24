@@ -7,6 +7,10 @@ def options(opt):
 				action='store',
 				default=False,
 				help='Build virtual reality verion of the game')
+	opt.add_option('--portvideo_src',
+				action='store',
+				default='../PortVideoSDL',
+				help='Path to the PortVideo source tree')
 
 def configure(conf):
 	conf.load('compiler_cxx')
@@ -14,10 +18,10 @@ def configure(conf):
 	conf.env.CXXFLAGS_FLAGS = [ '-DLINUX' ]
 	if conf.options.vr:
 		conf.env.CXXFLAGS_FLAGS.append('-DVR')
-	conf.env.LIBPATH_PORTVIDEO = '/home/simon/Projects/QM/PortVideoSDL/linux',
+	conf.env.LIBPATH_PORTVIDEO = conf.options.portvideo_src + '/linux',
 	conf.env.INCLUDES_PORTVIDEO = [
-		'/home/simon/Projects/QM/PortVideoSDL/common',
-		'/home/simon/Projects/QM/PortVideoSDL/ext/tinyxml',
+		conf.options.portvideo_src + '/common',
+		conf.options.portvideo_src + '/ext/tinyxml',
 	]
 	conf.check_cxx(stlib='PortVideo', use='PORTVIDEO')
 	conf.check_cfg(args='--cflags --libs', package='sdl SDL_ttf', uselib_store='SDL')
