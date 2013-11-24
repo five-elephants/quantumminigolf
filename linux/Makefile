@@ -16,7 +16,7 @@ INCLUDES = -I../ext/tinyxml -I../ext/ccvt -I../common
 
 LIBS = $(SDL_LDFLAGS) -ldc1394
 
-all:	$(TARGET) 
+all:	$(TARGET) lib
 
 $(TARGET) : $(CPPOBJECTS) $(COBJECTS)
 	$(CXX) -o $@ $+ $(LIBS) 
