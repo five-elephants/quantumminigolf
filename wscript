@@ -38,6 +38,7 @@ def build(bld):
 	Tracker.cpp
 	TrackSelector.cpp
 	WebcamTracker.cpp
+	Highscore.cpp
 	"""
 
 	bld.program(

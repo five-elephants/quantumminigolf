@@ -22,6 +22,7 @@
 #include "Renderer.h"
 #include "SoftwareTracker.h"
 #include "TrackSelector.h"
+#include "Highscore.h"
 #include "quantumminigolf.h"
 
 #ifdef VR
@@ -105,6 +106,7 @@ int main(int argc, char **argv){
 	ClassicSimulator csimulator(WIDTH, HEIGHT, &renderer, holex, holey, holer);
 	QuantumSimulator simulator(WIDTH, HEIGHT, dt);
 	TrackSelector trackselector(&renderer, &csimulator);
+	Highscore highscore("highscore.dat");
 		
 	tracker.setRenderer(&renderer);
 
@@ -238,6 +240,10 @@ int main(int argc, char **argv){
 
 //		printf("rendered %d frames, quantum part framerate %2.1f fps. Goodbye\n", frames, framerate);
 		simulator.ClearWave();
+
+		// XXX show highscore
+		highscore.add("user", 1);
+		highscore.print();
 	}
 
 	return 0;
