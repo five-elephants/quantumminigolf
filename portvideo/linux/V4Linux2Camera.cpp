@@ -152,6 +152,7 @@ bool V4Linux2Camera::startCamera() {
         v4l2_buf.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         v4l2_buf.memory      = V4L2_MEMORY_MMAP;
         v4l2_buf.index       = i;
+        std::cout << "QBUF for index=" << i << std::endl;
         if (-1 == ioctl (cameraID, VIDIOC_QBUF, &v4l2_buf)) {
             printf("Error queuing buffer: %s\n",  strerror(errno));
             exit(0);            

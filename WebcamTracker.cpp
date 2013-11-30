@@ -130,8 +130,6 @@ void WebcamTracker::GetHit(float *v, float *phi){
 	bool skipped=true; // flag indicating whether the last frame was skipped 
 						// because the club was not visible
 
-	camera->startCamera();
-
 	while(SDL_PollEvent(&dummyevent)==0){ // SDL_PollEvent : emergency exit if the user presses any key
 		sum=0;
 		poslast[0] = pos[0];
