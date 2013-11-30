@@ -12,7 +12,7 @@ class Highscore {
 			int points;
 		};
 		
-		Highscore(std::string const& filename);
+		Highscore(std::string const& filename, int const name_length=4);
 		~Highscore();
 
 		void load(std::string const& filename);
@@ -25,6 +25,7 @@ class Highscore {
 	private:
 		std::vector<Entry> m_scores;	
 		std::string m_savefile;
+		int const m_name_length;
 
 		void sort();
 
@@ -32,7 +33,7 @@ class Highscore {
 
 inline bool compare_highscore_entry(Highscore::Entry const& a,
 		Highscore::Entry const& b) {
-	return a.points < b.points;
+	return a.points > b.points;
 }
 
 /* vim: set noet fenc= ff=unix sts=0 sw=4 ts=4 : */

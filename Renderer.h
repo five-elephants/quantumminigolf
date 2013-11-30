@@ -54,6 +54,7 @@ public:
 	void RenderHighscoreEntry(int position,
 			std::string const& name,
 			int points);
+	void RenderHud(int lifes, int max_lifes, int points);
 
 	void Lock(void);
 	void Unlock(void);
@@ -71,12 +72,18 @@ private:
 	SDL_Surface *wave; // the wave
 	SDL_Surface *cmapm, *cmapc, *cmap; // monochrome, colored and a pointer to the actual color map
 	SDL_Surface *win; SDL_Surface *lose; 
+	SDL_Surface* heart;
+	SDL_Surface* heart_empty;
 	SDL_Rect rBuffer;
 
 	// fonts for the menu
 	TTF_Font *fntsml; 
 	TTF_Font *fntbg;
 	TTF_Font* fntarc;
+
+	SDL_Color highscore_color_hot;
+	SDL_Color highscore_color_cold;
+	SDL_Color hud_color;
 
 	int holex, holey, holer; // position and radius of the hole
 	int rball; // radius of the ball

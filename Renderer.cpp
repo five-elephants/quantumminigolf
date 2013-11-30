@@ -94,6 +94,8 @@ Renderer::Renderer(int width, int height, int flag, int holex, int holey, int ho
 		cmapc = SDL_LoadBMP( "gfx/cmap.bmp" );
 		win = SDL_LoadBMP( "gfx/win.bmp" );
 		lose = SDL_LoadBMP( "gfx/lose.bmp" );                          
+        heart = SDL_LoadBMP("gfx/heart_35.bmp");
+        heart_empty = SDL_LoadBMP("gfx/heart_empty_35.bmp");
 
 	if (cmapm == NULL)              
 	{                
@@ -115,6 +117,14 @@ Renderer::Renderer(int width, int height, int flag, int holex, int holey, int ho
 		printf("Error: Can't load bitmap lose\n\n");
 		exit(1);
 	}
+    if( heart == NULL ) {
+        printf("Error: Can't load bitmap heart\n\n");
+        exit(1);
+    }
+    if( heart_empty == NULL ) {
+        printf("Error: Can't load bitmap heart_empty\n\n");
+        exit(1);
+    }
 	
 	// compute transparency data of the color maps
 	cmapc = SDL_ConvertSurface(cmapc, wave->format, SDL_SWSURFACE | SDL_SRCALPHA);       
@@ -196,6 +206,16 @@ Renderer::Renderer(int width, int height, int flag, int holex, int holey, int ho
 	SDL_EventState(SDL_KEYDOWN, SDL_ENABLE);  
 
     SDL_ShowCursor( SDL_DISABLE );         
+
+    highscore_color_hot.r = 55;
+    highscore_color_hot.g = 255;
+    highscore_color_hot.b = 32;
+    highscore_color_cold.r = 196;
+    highscore_color_cold.g = 255;
+    highscore_color_cold.b = 190;
+    hud_color.r = 240;
+    hud_color.g = 255;
+    hud_color.b = 0;
 }
 
 
@@ -462,7 +482,7 @@ Renderer::RenderCrossair(float x, float y, float size)
 
 void
 Renderer::RenderNewHighscore(std::string const& name) {
-    SDL_Color txt_color = { 255, 0, 0, 255 };
+    SDL_Color& txt_color = highscore_color_hot;
     
     SDL_Surface* heading = TTF_RenderText_Solid(fntarc, "New Highscore!", txt_color);
     SDL_Surface* username = TTF_RenderText_Solid(fntarc, name.c_str(), txt_color);
@@ -480,12 +500,24 @@ Renderer::RenderNewHighscore(std::string const& name) {
 
 void
 Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
-    SDL_Color txt_color = { 255-pos*20, 0, 0, 255 };
+    //SDL_Color txt_color = { 255-pos*20, 0, 0, 255 };
+    SDL_Color txt_color;
+    double color_diff_r;
+    double color_diff_g;
+    double color_diff_b;
     std::stringstream strm;
 
+    color_diff_r = highscore_color_cold.r - highscore_color_hot.r;
+    color_diff_g = highscore_color_cold.g - highscore_color_hot.g;
+    color_diff_b = highscore_color_cold.b - highscore_color_hot.b;
+    double rank = static_cast<double>(pos) / 10.0;
+    txt_color.r = highscore_color_hot.r + static_cast<unsigned char>(color_diff_r * rank);
+    txt_color.g = highscore_color_hot.g + static_cast<unsigned char>(color_diff_g * rank);
+    txt_color.b = highscore_color_hot.b + static_cast<unsigned char>(color_diff_b * rank);
+
     strm << std::setw(2) << pos+1 
-        << " : " << name 
-        << " : " << std::setw(4) << points;
+        << ". " << name 
+        << "    " << std::setw(4) << points;
 
     SDL_Surface* surf = TTF_RenderText_Solid(fntarc,
             strm.str().c_str(),
@@ -495,6 +527,32 @@ Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
     SDL_BlitSurface(surf, NULL, bBuffer, &rcDest);
     
     SDL_FreeSurface(surf);
+}
+
+
+void
+Renderer::RenderHud(int lifes, int max_lifes, int points) {
+    std::stringstream strm;
+
+    strm 
+        //<< lifes << " lifes  "
+        << std::setw(5) << points;
+
+    SDL_Surface* txt = TTF_RenderText_Solid(fntarc,
+            strm.str().c_str(),
+            hud_color);
+    SDL_Rect rcDest = { 10, 10, 0, 0 };
+    SDL_BlitSurface(txt, NULL, bBuffer, &rcDest);
+
+    for(int i=0; i<max_lifes; i++) {
+        SDL_Rect dest = { 200 + i * 40, 10, 0, 0 };
+        if( i < lifes )
+            SDL_BlitSurface(heart, NULL, bBuffer, &dest);
+        else
+            SDL_BlitSurface(heart_empty, NULL, bBuffer, &dest);
+    }
+
+    SDL_FreeSurface(txt);
 }
 
 // Blit 

@@ -23,7 +23,10 @@
 #include "SoftwareTracker.h"
 #include "TrackSelector.h"
 #include "Highscore.h"
+#include "Game.h"
 #include "quantumminigolf.h"
+
+#include <iostream>
 
 #ifdef VR
 #include "WebcamTracker.h"
@@ -77,6 +80,7 @@ int main(int argc, char **argv){
 	Uint32 sdlclock, frameclock;
 
 	bool quantum=true;  // quantum or classical mode ?
+	bool exit_request = false;
 
 	SDL_Event dummyevent;
 
@@ -112,141 +116,158 @@ int main(int argc, char **argv){
 
 	quantum = true;
 
-	// menu loop - have the user select a track and play
-	while(trackselector.GetTrack(&quantum)){
-		
-		// for each new track, we have to rebuild the position propagator
-		if(quantum)
-			simulator.BuildPositionPropagator(renderer.V);
+	while( !exit_request ) {
+		highscore.show_highscore(renderer);
 
-		renderer.RenderTrack();
-		renderer.RenderBall(ix, iy);
-		renderer.Blit();
+		Game game;
+		do {
+			// menu loop - have the user select a track and play
+			if( !trackselector.GetTrack(&quantum) ) {
+				exit_request = true;
+				break;
+			}
+				
+			// for each new track, we have to rebuild the position propagator
+			if(quantum)
+				simulator.BuildPositionPropagator(renderer.V);
 
-		// have the user kick the ball
-		tracker.GetHit(&rv, &rphi);
-		Uint32 hitclock = SDL_GetTicks();
-
-		// now that the user has decided about the initial values, 
-		// prepare the wave packet		
-		if(quantum){
-		    // commented out for uncertainty movie 070519
- 			simulator.GenGauss( ix, iy,
- 				-2*rv*M_PI/2 * cos(rphi)/2, 
- 				-2*rv*M_PI/2 * sin(rphi)/2, 
- 				10);    
-		    // hack for uncertainty movie 070519
-//  			simulator.GenGauss( 200, iy,
-//  				-.4, 
-//  				0, 
-//  				15);    
-//  			simulator.GenGauss( 400, iy,
-//  				-.4, 
-//  				0, 
-//  				6);    		    
-//  			simulator.GenGauss( 600, iy,
-//  				-.4, 
-//  				0, 
-//  				3);    		    
-		}
-		else{
-			csimulator.setPosition((float)ix, (float)iy);
-			csimulator.setVelocity(-2*rv*M_PI/2 * cos(rphi), -2*rv*M_PI/2 * sin(rphi));
-		}
-		
-		//kick it like Beckham
-		tracker.AnimateHit(1000, rv, rphi);
-
-		SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);  
-		sdlclock = SDL_GetTicks();
-		frameclock = SDL_GetTicks();
-		frames=0;
-
-		// ***** MAIN LOOP *****//
-		//
-		// while the user is watching (no event emitted), propagate the 
-		// wave function in the potential
-		while (SDL_PollEvent(&dummyevent)==0)    
-		{              			
 			renderer.RenderTrack();
+			renderer.RenderBall(ix, iy);
+			renderer.RenderHud(game.lifes(), Game::max_lifes, game.score());
+			renderer.Blit();
 
+			// have the user kick the ball
+			tracker.GetHit(&rv, &rphi);
+			Uint32 hitclock = SDL_GetTicks();
+
+			// now that the user has decided about the initial values, 
+			// prepare the wave packet		
 			if(quantum){
-				// propagate in momentum space
-				simulator.PropagateMomentum();
-				// propagate in position space
-				normlast = simulator.PropagatePosition(1/nsq/sqrt(normlast));	
-				// finally, show the result
-				renderer.RenderWave(simulator.psi);
+				// commented out for uncertainty movie 070519
+				simulator.GenGauss( ix, iy,
+					-2*rv*M_PI/2 * cos(rphi)/2, 
+					-2*rv*M_PI/2 * sin(rphi)/2, 
+					10);    
+				// hack for uncertainty movie 070519
+	//  			simulator.GenGauss( 200, iy,
+	//  				-.4, 
+	//  				0, 
+	//  				15);    
+	//  			simulator.GenGauss( 400, iy,
+	//  				-.4, 
+	//  				0, 
+	//  				6);    		    
+	//  			simulator.GenGauss( 600, iy,
+	//  				-.4, 
+	//  				0, 
+	//  				3);    		    
 			}
 			else{
-				if(csimulator.propagate(SDL_GetTicks()-frameclock)) break;
-				renderer.RenderBall(csimulator.pos[0], csimulator.pos[1]);
+				csimulator.setPosition((float)ix, (float)iy);
+				csimulator.setVelocity(-2*rv*M_PI/2 * cos(rphi), -2*rv*M_PI/2 * sin(rphi));
+			}
+			
+			//kick it like Beckham
+			tracker.AnimateHit(1000, rv, rphi);
+
+			SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);  
+			sdlclock = SDL_GetTicks();
+			frameclock = SDL_GetTicks();
+			frames=0;
+
+			// ***** MAIN LOOP *****//
+			//
+			// while the user is watching (no event emitted), propagate the 
+			// wave function in the potential
+			while (SDL_PollEvent(&dummyevent)==0)    
+			{              			
+				renderer.RenderTrack();
+
+				if(quantum){
+					// propagate in momentum space
+					simulator.PropagateMomentum();
+					// propagate in position space
+					normlast = simulator.PropagatePosition(1/nsq/sqrt(normlast));	
+					// finally, show the result
+					renderer.RenderWave(simulator.psi);
+				}
+				else{
+					if(csimulator.propagate(SDL_GetTicks()-frameclock)) break;
+					renderer.RenderBall(csimulator.pos[0], csimulator.pos[1]);
+				}
+
+				renderer.RenderHud(game.lifes(), Game::max_lifes, game.score());
+				renderer.Blit();
+#ifdef DUMP_VIDEO
+				snprintf(fname, 80, "video/%d.bmp", frames);
+				renderer.SaveFrame(fname);
+#endif
+
+				// some bookkeeping
+				frames++;
+				frameclock = SDL_GetTicks();
 			}
 
+			framerate = frames / (float)(SDL_GetTicks() - sdlclock)*1000;
+
+			while (SDL_PollEvent(&dummyevent)==1){} // clear event buffer 
+
+			// render a flash to show the position measurement
+			renderer.RenderFlash();
 			renderer.Blit();
+			frames++;
 #ifdef DUMP_VIDEO
 			snprintf(fname, 80, "video/%d.bmp", frames);
 			renderer.SaveFrame(fname);
 #endif
 
-			// some bookkeeping
-			frames++;
-			frameclock = SDL_GetTicks();
-		}
+			// a button has been pressed, measure the ball position!
+			if(quantum)
+				simulator.PositionMeasurement(&posx, &posy);
+			else{
+				posx = (int)(csimulator.pos[0]);
+				posy = (int)(csimulator.pos[1]);
+			}
 
-		framerate = frames / (float)(SDL_GetTicks() - sdlclock)*1000;
+			// render the extro. Show the (now classical) ball and inform the user about his success
+			if((posx-holex)*(posx-holex) + (posy-holey)*(posy-holey) < holer*holer) {
+				res = QMG_WIN;
+				game.win_track();
+			} else {
+				res = QMG_LOSE;
+				game.fail_track();
+			}
 
-		while (SDL_PollEvent(&dummyevent)==1){} // clear event buffer 
+			sdlclock = SDL_GetTicks();
+			//while (SDL_PollEvent(NULL)==0)                    
+			while ( (SDL_GetTicks() - sdlclock) < 2000 )  // show for 2 sec                   
+			{              
+				ypos = - 300 + (int)((float)(SDL_GetTicks() - sdlclock)/500*HEIGHT/2);
 
-		// render a flash to show the position measurement
-		renderer.RenderFlash();
-		renderer.Blit();
-		frames++;
+				renderer.RenderTrack();
+				renderer.RenderBall(posx, posy);
+				renderer.RenderHud(game.lifes(), Game::max_lifes, game.score());
+				renderer.RenderExtro(res, ypos);
+				
+				renderer.Blit();
+				frames++;
 #ifdef DUMP_VIDEO
-		snprintf(fname, 80, "video/%d.bmp", frames);
-		renderer.SaveFrame(fname);
+				snprintf(fname, 80, "video/%d.bmp", frames);
+				renderer.SaveFrame(fname);
 #endif
+			}
 
-		// a button has been pressed, measure the ball position!
-		if(quantum)
-			simulator.PositionMeasurement(&posx, &posy);
-		else{
-			posx = (int)(csimulator.pos[0]);
-			posy = (int)(csimulator.pos[1]);
-		}
+	//		printf("rendered %d frames, quantum part framerate %2.1f fps. Goodbye\n", frames, framerate);
+			simulator.ClearWave();
+		} while( !game.check_game_over() );
 
-		// render the extro. Show the (now classical) ball and inform the user about his success
-		if((posx-holex)*(posx-holex) + (posy-holey)*(posy-holey) < holer*holer)
-			res = QMG_WIN;
-		else
-			res = QMG_LOSE;
-
-		sdlclock = SDL_GetTicks();
-		//while (SDL_PollEvent(NULL)==0)                    
-		while ( (SDL_GetTicks() - sdlclock) < 2000 )  // show for 2 sec                   
-		{              
-			ypos = - 300 + (int)((float)(SDL_GetTicks() - sdlclock)/500*HEIGHT/2);
-
+		if( !exit_request ) {
+			// show highscore
+			std::cout << "highscore with " << game.score() << " points" << std::endl;
+			highscore.get_new_highscore(renderer, game.score());
 			renderer.RenderTrack();
-			renderer.RenderBall(posx, posy);
-			renderer.RenderExtro(res, ypos);
-			
-			renderer.Blit();
-			frames++;
-#ifdef DUMP_VIDEO
-			snprintf(fname, 80, "video/%d.bmp", frames);
-			renderer.SaveFrame(fname);
-#endif
+			highscore.show_highscore(renderer);
 		}
-
-//		printf("rendered %d frames, quantum part framerate %2.1f fps. Goodbye\n", frames, framerate);
-		simulator.ClearWave();
-
-		// show highscore
-		highscore.get_new_highscore(renderer, 1);
-		renderer.RenderTrack();
-		renderer.RenderBall(posx, posy);
-		highscore.show_highscore(renderer);
 	}
 
 	return 0;

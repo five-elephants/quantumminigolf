@@ -6,8 +6,9 @@
 #include <sstream>
 #include <algorithm>
 
-Highscore::Highscore(std::string const& filename)
-	:	m_savefile(filename) {
+Highscore::Highscore(std::string const& filename, int const name_length)
+	:	m_savefile(filename),
+		m_name_length(name_length) {
 	load(filename);
 }
 
@@ -87,7 +88,7 @@ Highscore::get_new_highscore(Renderer& renderer, int points) {
 	Entry e;
 	size_t char_i = 0;
 
-	e.name = "---";
+	e.name.resize(m_name_length, '-');
 	e.points = points;
 
 	if( SDL_EnableKeyRepeat(0, 0) == -1 ) {
@@ -95,13 +96,14 @@ Highscore::get_new_highscore(Renderer& renderer, int points) {
 	}
 
 	do {
+		renderer.RenderTrack();
 		renderer.RenderNewHighscore(e.name);
 		renderer.Blit();
 
 		if( SDL_PollEvent(&ev) != 0 ) {
 			if( ev.type == SDL_KEYDOWN ) {
 				e.name[char_i] = SDL_GetKeyName(ev.key.keysym.sym)[0];
-				if( ++char_i == 3 )
+				if( ++char_i == m_name_length )
 					done = true;
 			}
 		}
