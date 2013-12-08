@@ -21,7 +21,7 @@
 #include "ClassicSimulator.h"
 #include "Renderer.h"
 #include "SoftwareTracker.h"
-#include "TrackSelector.h"
+#include "GameTrackSelector.h"
 #include "Highscore.h"
 #include "Game.h"
 #include "quantumminigolf.h"
@@ -43,6 +43,7 @@ char fname[80];
 // dimensions of the playing field
 #define WIDTH 640
 #define HEIGHT 320
+
 
 // main
 // put it all together...
@@ -109,7 +110,7 @@ int main(int argc, char **argv){
 
 	ClassicSimulator csimulator(WIDTH, HEIGHT, &renderer, holex, holey, holer);
 	QuantumSimulator simulator(WIDTH, HEIGHT, dt);
-	TrackSelector trackselector(&renderer, &csimulator);
+	GameTrackSelector trackselector(&renderer, &csimulator);
 	Highscore highscore("highscore.dat");
 		
 	tracker.setRenderer(&renderer);
@@ -120,6 +121,7 @@ int main(int argc, char **argv){
 		highscore.show_highscore(renderer);
 
 		Game game;
+		tracker.setGame(game);
 		do {
 			// menu loop - have the user select a track and play
 			if( !trackselector.GetTrack(&quantum) ) {
@@ -130,11 +132,6 @@ int main(int argc, char **argv){
 			// for each new track, we have to rebuild the position propagator
 			if(quantum)
 				simulator.BuildPositionPropagator(renderer.V);
-
-			renderer.RenderTrack();
-			renderer.RenderBall(ix, iy);
-			renderer.RenderHud(game.lifes(), Game::max_lifes, game.score());
-			renderer.Blit();
 
 			// have the user kick the ball
 			tracker.GetHit(&rv, &rphi);
@@ -233,6 +230,7 @@ int main(int argc, char **argv){
 			if((posx-holex)*(posx-holex) + (posy-holey)*(posy-holey) < holer*holer) {
 				res = QMG_WIN;
 				game.win_track();
+				trackselector.next_track();
 			} else {
 				res = QMG_LOSE;
 				game.fail_track();

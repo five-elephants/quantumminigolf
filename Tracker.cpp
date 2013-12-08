@@ -29,6 +29,7 @@ Tracker::Tracker(int w, int h, int ix, int iy, int rball,
 	this->vmax = vmax;
 
 	this->renderer = renderer;
+	this->game = NULL;
 }
 
 Tracker::~Tracker(void)

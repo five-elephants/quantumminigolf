@@ -12,7 +12,7 @@ class Highscore {
 			int points;
 		};
 		
-		Highscore(std::string const& filename, int const name_length=4);
+		Highscore(std::string const& filename, int const name_length=5);
 		~Highscore();
 
 		void load(std::string const& filename);

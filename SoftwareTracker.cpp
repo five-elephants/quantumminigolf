@@ -40,9 +40,11 @@ void SoftwareTracker::GetHit(float *v, float *phi){
 
 			renderer->RenderTrack();
 			renderer->RenderBall(ix, iy);
+			renderer->RenderHud(game->lifes(), Game::max_lifes, game->score());
 			renderer->RenderRacket(15, 20, ix, iy, *phi);
 			renderer->Blit();
 		}    
+
 		// The user has clicked the mouse, wait until he releases it and determine 
 		// the racket velocity from the hold time
 		*v=0;
@@ -54,6 +56,7 @@ void SoftwareTracker::GetHit(float *v, float *phi){
 
 			renderer->RenderTrack();
 			renderer->RenderBall(ix, iy);
+			renderer->RenderHud(game->lifes(), Game::max_lifes, game->score());
 			renderer->RenderRacket(15, 20+vmax * *v, ix, iy, *phi);
 			renderer->Blit();
 		}
@@ -68,6 +71,7 @@ void SoftwareTracker::AnimateHit(Uint32 duration, float v, float phi){
 		while(SDL_GetTicks() - sdlclock < duration){
 			renderer->RenderTrack();
 			renderer->RenderBall(ix, iy);
+			renderer->RenderHud(game->lifes(), Game::max_lifes, game->score());
 			renderer->RenderRacket(15, 
 				20+vmax* v - (20-rball+vmax* v)*(float)(SDL_GetTicks() - sdlclock)*(SDL_GetTicks() - sdlclock)/duration/duration, 
 				ix, iy, phi);

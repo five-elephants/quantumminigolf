@@ -47,7 +47,7 @@ public:
 	// tracks and then quit or start a new game)
 	int GetTrack(bool *quantum);
 
-private:
+protected:
 	SDL_Surface *BlackTrack(void);
 
 	Renderer *renderer;  // pointer to the renderer

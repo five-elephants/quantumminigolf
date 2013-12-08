@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "Game.h"
 #include <SDL.h>
 #include <math.h>
 
@@ -38,10 +39,12 @@ public:
 	virtual void AnimateHit(Uint32 duration, float v, float phi)=0;
 	void setRenderer(Renderer *renderer){this->renderer = renderer;}
 
+	void setGame(Game& game) { this->game = &game; }
 protected:
 	~Tracker(void);
 	int ix, iy, rball, w, h;
 	float vmax;
 
 	Renderer *renderer;
+	Game *game;
 };

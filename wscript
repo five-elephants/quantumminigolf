@@ -4,6 +4,7 @@
 def options(opt):
 	opt.load('compiler_c')
 	opt.load('compiler_cxx')
+	opt.load('boost')
 	opt.add_option('--vr',
 				action='store_true',
 				default=False,
@@ -16,6 +17,8 @@ def options(opt):
 def configure(conf):
 	conf.load('compiler_c')
 	conf.load('compiler_cxx')
+	conf.load('boost')
+	conf.check_boost(lib='property_tree')
 
 	conf.env.CXXFLAGS_FLAGS = [ '-DLINUX' ]
 	if conf.options.vr:
@@ -64,6 +67,7 @@ def build(bld):
 	SoftwareTracker.cpp
 	Tracker.cpp
 	TrackSelector.cpp
+	GameTrackSelector.cpp
 	WebcamTracker.cpp
 	Highscore.cpp
 	Game.cpp
@@ -74,6 +78,6 @@ def build(bld):
 		target = 'quantumminigolf',
 		includes = '',
 		cxxflags = '-O2 -malign-double',
-		use = 'FLAGS SDL FFTW3F PORTVIDEO portvideosdl',
+		use = 'FLAGS SDL FFTW3F PORTVIDEO BOOST portvideosdl',
 	)
 
