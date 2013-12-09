@@ -125,7 +125,9 @@ Highscore::show_highscore(Renderer& renderer) {
 	}
 	renderer.Blit();
 
-	while( SDL_PollEvent(NULL) == 0 );
+	//while( SDL_PollEvent(NULL) == 0 );
+	SDL_Event dummyevent;
+	SDL_WaitEvent(&dummyevent);
 }
 
 

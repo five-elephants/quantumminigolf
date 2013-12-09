@@ -113,6 +113,7 @@ int main(int argc, char **argv){
 	GameTrackSelector trackselector(&renderer, &csimulator);
 	Highscore highscore("highscore.dat");
 		
+	trackselector.load_configuration("tracks/game_tracks.cfg");
 	tracker.setRenderer(&renderer);
 
 	quantum = true;
@@ -122,6 +123,7 @@ int main(int argc, char **argv){
 
 		Game game;
 		tracker.setGame(game);
+		trackselector.back_to_start();
 		do {
 			// menu loop - have the user select a track and play
 			if( !trackselector.GetTrack(&quantum) ) {
@@ -230,11 +232,14 @@ int main(int argc, char **argv){
 			if((posx-holex)*(posx-holex) + (posy-holey)*(posy-holey) < holer*holer) {
 				res = QMG_WIN;
 				game.win_track();
-				trackselector.next_track();
+				if( !trackselector.tier_up() ) {
+					game.win_game();
+				}
 			} else {
 				res = QMG_LOSE;
 				game.fail_track();
 			}
+			trackselector.next_track();
 
 			sdlclock = SDL_GetTicks();
 			//while (SDL_PollEvent(NULL)==0)                    

@@ -6,7 +6,11 @@
 
 GameTrackSelector::GameTrackSelector(Renderer* renderer, ClassicSimulator* csim)
 	:	TrackSelector(renderer, csim) {
-	load_configuration("tracks/game_tracks.cfg");
+	this->renderer = renderer;
+	this->csimulator = csimulator;
+	this->width = renderer->width;
+	this->height = renderer->height;
+	help = true; // ???
 }
 
 GameTrackSelector::~GameTrackSelector() {
@@ -19,6 +23,8 @@ GameTrackSelector::GetTrack(bool* quantum) {
 	*quantum = true;
 
 	renderer->V = (*trackiterator)->V;
+	csimulator->hard = (*trackiterator)->hard;
+	csimulator->soft = (*trackiterator)->soft;
 	renderer->RenderTrack();
 	renderer->Blit();
 
@@ -32,9 +38,24 @@ GameTrackSelector::GetTrack(bool* quantum) {
 
 void
 GameTrackSelector::next_track() {
-	if( ++trackiterator == tracks.end() ) {
-		trackiterator = tracks.begin();
+	if( ++trackiterator == cur_tier->end() ) {
+		trackiterator = cur_tier->begin();
 	}
+}
+
+bool
+GameTrackSelector::tier_up() {
+	if( ++cur_tier != tiers.end() ) {
+		trackiterator = cur_tier->begin();
+		return true;
+	}
+	return false;
+}
+
+void
+GameTrackSelector::back_to_start() {
+	cur_tier = tiers.begin();
+	trackiterator = cur_tier->begin();
 }
 
 void
@@ -45,7 +66,61 @@ GameTrackSelector::load_configuration(std::string const& filename) {
 
 	read_json(filename, pt);
 
-	for(ptree::iterator track = pt.begin(); track != pt.end(); ++track) {
-		std::cout << "found track '" << track->first << "'" << std::endl;
+	ptree const& game_tracks = pt.get_child("game");
+	for(ptree::const_iterator track = game_tracks.begin();
+			track != game_tracks.end();
+			++track) {
+		ptree const& st = track->second;
+		std::cout << "found track '" << st.get<std::string>("img") << "'" << std::endl;
+
+		trackrecord* rec = new trackrecord;
+		rec->V = load_bmp(st.get<std::string>("img"));
+		rec->hard = load_bmp(st.get<std::string>("hard"), true);
+		rec->soft = load_bmp(st.get<std::string>("soft"), true);
+
+		int const& tier = st.get<int>("tier");
+		if( tier < 0 || tier > tier_limit )
+			throw std::runtime_error("tier out of range (0 <= tier <= 20)");
+
+		if( tier >= tiers.size() )
+			tiers.resize(tier+1);
+
+		tiers[tier].push_back(rec);
+		std::cout << "pushin to tier " << tier << std::endl;
 	}
+
+	cur_tier = tiers.begin();
+	trackiterator = cur_tier->begin();
+
+	renderer->V = (*trackiterator)->V;
+	csimulator->hard = (*trackiterator)->hard;
+	csimulator->soft = (*trackiterator)->soft;
+	renderer->RenderTrack();
+	renderer->Blit();
 }
+
+SDL_Surface*
+GameTrackSelector::load_bmp(std::string const& fn,
+		bool optional) {
+	std::string path("tracks/");
+
+	SDL_Surface* surf = SDL_LoadBMP((path + fn).c_str());
+
+	if( surf == NULL || surf->w != width || surf->h != height ) {
+		SDL_FreeSurface(surf);
+		
+		if( !optional ) {
+			throw std::runtime_error(
+					std::string("Loading bitmap ")
+					+ path
+					+ fn
+					+ std::string(" failed")
+			);
+		} else {
+			surf = BlackTrack();	
+		}
+	}
+
+	return SDL_ConvertSurface(surf, renderer->screen->format, SDL_SWSURFACE);
+}
+

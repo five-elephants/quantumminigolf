@@ -27,89 +27,12 @@ TrackSelector::TrackSelector(Renderer *renderer, ClassicSimulator *csimulator)
 	this->width = renderer->width;
 	this->height = renderer->height;
 
-	char line[80];
-	char V[80];
-	char hard[80];
-	char soft[80];
-	string fname;
-
-	SDL_Surface *bmp;
-
-	trackrecord *entry;
-
 	help = true;
-
-	/*read the config file, load the track bitmaps and store 
-	them in the track vector*/
-	FILE *conf = fopen("tracks/tracks.cfg", "r");
-	//load an empty dummy track, if there is no config file present
-	if(conf == NULL){
-		cout << "Cannot open track config file" << endl;
-			entry = new trackrecord;
-			tracks.push_back(entry);
-			entry->V = BlackTrack();
-			entry->hard = BlackTrack();
-			entry->soft = BlackTrack();
-	}
-	//config file present: load all tracks mentioned in the config file
-	else{
-		cout << "preloading tracks... " << endl;
-		while(fgets(line, 79, conf)){
-			for(int i=0; i<80-1; i++){
-				hard[i] = ' '; soft[i] = ' ';
-			}
-			sscanf(line, "%s %s %s\n", V, hard, soft);
-			fname = string("tracks/");
-			fname.append(V);
-			cout <<  fname << "...";
-			bmp = (SDL_Surface *)SDL_LoadBMP(fname.c_str());
-
-			/*if bitmap cannot be loaded or has the wrong format, skip it*/
-			if(bmp == NULL || bmp->w != width || bmp->h != height){
-				cout << "failed: no quantum track found" << endl;
-				SDL_FreeSurface(bmp); 
-				bmp = BlackTrack();
-			}
-			entry = new trackrecord;
-			tracks.push_back(entry);
-			entry->V = SDL_ConvertSurface(bmp, renderer->screen->format, SDL_SWSURFACE);
-
-			fname = string("tracks/");
-			fname.append(hard);
-			bmp = (SDL_Surface *)SDL_LoadBMP(fname.c_str());
-			/*if bitmap cannot be loaded or has the wrong format, skip it*/
-			if(bmp == NULL || bmp->w != width || bmp->h != height){
-				cout << fname << ":failed to load hardcore potential " << endl;
-				SDL_FreeSurface(bmp); 
-				bmp = BlackTrack();
-			}
-			entry->hard = SDL_ConvertSurface(bmp, renderer->screen->format, SDL_SWSURFACE);
-
-			fname = string("tracks/");
-			fname.append(soft);
-			bmp = (SDL_Surface *)SDL_LoadBMP(fname.c_str());
-			/*if bitmap cannot be loaded or has the wrong format, skip it*/
-			if(bmp == NULL || bmp->w != width || bmp->h != height){
-				cout << fname << ":failed to load softcore potential" << endl;
-				SDL_FreeSurface(bmp); 
-				bmp = BlackTrack();
-			}
-			entry->soft = SDL_ConvertSurface(bmp, renderer->screen->format, SDL_SWSURFACE);
-
-			cout << "done" << endl;
-		}
-	}
-	trackiterator = tracks.begin();
-	renderer->V = (*trackiterator)->V;
-	csimulator->hard = (*trackiterator)->hard;
-	csimulator->soft = (*trackiterator)->soft;
-	renderer->RenderTrack();
-	renderer->Blit();
 }
 
 TrackSelector::~TrackSelector(void)
 {
-	list<trackrecord *>::iterator l;
+	vector<trackrecord *>::iterator l;
 	for(l=tracks.begin(); l!=tracks.end(); ++l){
 		SDL_FreeSurface((*l)->V);
 		SDL_FreeSurface((*l)->hard);
@@ -227,3 +150,84 @@ SDL_Surface * TrackSelector::BlackTrack(void){
 	return result;
 }
 
+
+void
+TrackSelector::load_configuration(std::string const& filename) {
+	char line[80];
+	char V[80];
+	char hard[80];
+	char soft[80];
+	string fname;
+
+	SDL_Surface *bmp;
+
+	trackrecord *entry;
+
+	/*read the config file, load the track bitmaps and store 
+	them in the track vector*/
+	FILE *conf = fopen(filename.c_str(), "r");
+	//load an empty dummy track, if there is no config file present
+	if(conf == NULL){
+		cout << "Cannot open track config file" << endl;
+			entry = new trackrecord;
+			tracks.push_back(entry);
+			entry->V = BlackTrack();
+			entry->hard = BlackTrack();
+			entry->soft = BlackTrack();
+	}
+	//config file present: load all tracks mentioned in the config file
+	else{
+		cout << "preloading tracks... " << endl;
+		while(fgets(line, 79, conf)){
+			for(int i=0; i<80-1; i++){
+				hard[i] = ' '; soft[i] = ' ';
+			}
+			sscanf(line, "%s %s %s\n", V, hard, soft);
+			fname = string("tracks/");
+			fname.append(V);
+			cout <<  fname << "...";
+			bmp = (SDL_Surface *)SDL_LoadBMP(fname.c_str());
+
+			/*if bitmap cannot be loaded or has the wrong format, skip it*/
+			if(bmp == NULL || bmp->w != width || bmp->h != height){
+				cout << "failed: no quantum track found" << endl;
+				SDL_FreeSurface(bmp); 
+				bmp = BlackTrack();
+			}
+			entry = new trackrecord;
+			tracks.push_back(entry);
+			entry->V = SDL_ConvertSurface(bmp, renderer->screen->format, SDL_SWSURFACE);
+
+			fname = string("tracks/");
+			fname.append(hard);
+			bmp = (SDL_Surface *)SDL_LoadBMP(fname.c_str());
+			/*if bitmap cannot be loaded or has the wrong format, skip it*/
+			if(bmp == NULL || bmp->w != width || bmp->h != height){
+				cout << fname << ":failed to load hardcore potential " << endl;
+				SDL_FreeSurface(bmp); 
+				bmp = BlackTrack();
+			}
+			entry->hard = SDL_ConvertSurface(bmp, renderer->screen->format, SDL_SWSURFACE);
+
+			fname = string("tracks/");
+			fname.append(soft);
+			bmp = (SDL_Surface *)SDL_LoadBMP(fname.c_str());
+			/*if bitmap cannot be loaded or has the wrong format, skip it*/
+			if(bmp == NULL || bmp->w != width || bmp->h != height){
+				cout << fname << ":failed to load softcore potential" << endl;
+				SDL_FreeSurface(bmp); 
+				bmp = BlackTrack();
+			}
+			entry->soft = SDL_ConvertSurface(bmp, renderer->screen->format, SDL_SWSURFACE);
+
+			cout << "done" << endl;
+		}
+	}
+
+	trackiterator = tracks.begin();
+	renderer->V = (*trackiterator)->V;
+	csimulator->hard = (*trackiterator)->hard;
+	csimulator->soft = (*trackiterator)->soft;
+	renderer->RenderTrack();
+	renderer->Blit();
+}

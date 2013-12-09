@@ -46,6 +46,7 @@ public:
 	// handle the user input in the menu phase (i.e. cycle the 
 	// tracks and then quit or start a new game)
 	int GetTrack(bool *quantum);
+	void load_configuration(std::string const& filename);
 
 protected:
 	SDL_Surface *BlackTrack(void);
@@ -61,6 +62,7 @@ protected:
 	// tracks - a list containing all the pre-loaded tracks 
 	// when the user cycles through the tracks, they are fetched 
 	// from 'tracks' by 'trackiterator'
-	list<trackrecord *> tracks;
-	list<trackrecord *>::iterator trackiterator;
+	std::vector<trackrecord *> tracks;
+	std::vector<trackrecord *>::iterator trackiterator;
+
 };
