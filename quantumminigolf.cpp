@@ -266,8 +266,9 @@ int main(int argc, char **argv){
 
 		if( !exit_request ) {
 			// show highscore
-			std::cout << "highscore with " << game.score() << " points" << std::endl;
-			highscore.get_new_highscore(renderer, game.score());
+			if( highscore.is_new_highscore(game.score()) ) {
+				highscore.get_new_highscore(renderer, game.score());
+			}
 			renderer.RenderTrack();
 			highscore.show_highscore(renderer);
 		}

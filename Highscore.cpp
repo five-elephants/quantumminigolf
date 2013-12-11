@@ -6,9 +6,12 @@
 #include <sstream>
 #include <algorithm>
 
-Highscore::Highscore(std::string const& filename, int const name_length)
+Highscore::Highscore(std::string const& filename,
+		int const name_length,
+		int const top_ranks)
 	:	m_savefile(filename),
-		m_name_length(name_length) {
+		m_name_length(name_length),
+		m_top_ranks(top_ranks) {
 	load(filename);
 }
 
@@ -81,6 +84,17 @@ Highscore::add(std::string const& name, int points) {
 }
 
 
+bool
+Highscore::is_new_highscore(int points) {
+	sort();
+	size_t have_to_beat = (m_scores.size() > m_top_ranks) ? (m_top_ranks-1) : m_scores.size() -1;	
+
+	if( !m_scores.empty() )
+		return ( points > m_scores[have_to_beat].points );
+	else
+		return true;
+}
+
 void
 Highscore::get_new_highscore(Renderer& renderer, int points) {
 	SDL_Event ev;
@@ -125,7 +139,6 @@ Highscore::show_highscore(Renderer& renderer) {
 	}
 	renderer.Blit();
 
-	//while( SDL_PollEvent(NULL) == 0 );
 	SDL_Event dummyevent;
 	SDL_WaitEvent(&dummyevent);
 }

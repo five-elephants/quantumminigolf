@@ -125,6 +125,8 @@ bool V4Linux2Camera::findCamera() {
     char v4l2_device[128];
     sprintf(v4l2_device,"/dev/video%d",config.device);
 
+    std::cout << "Trying to open camera device: " << v4l2_device << std::endl;
+
     int fd = open(v4l2_device, O_RDWR);
     if (fd < 0) {
         printf("no v4linux2 camera found at %s\n", v4l2_device);

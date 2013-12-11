@@ -55,6 +55,7 @@ public:
 			std::string const& name,
 			int points);
 	void RenderHud(int lifes, int max_lifes, int points);
+	void RenderMessage(std::string const& msg);
 
 	void Lock(void);
 	void Unlock(void);

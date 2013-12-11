@@ -12,13 +12,16 @@ class Highscore {
 			int points;
 		};
 		
-		Highscore(std::string const& filename, int const name_length=5);
+		Highscore(std::string const& filename,
+				int const name_length=5,
+				int const top_ranks=10);
 		~Highscore();
 
 		void load(std::string const& filename);
 		void save(std::string const& filename);
 		void print();
 		void add(std::string const& name, int points);
+		bool is_new_highscore(int points);
 		void get_new_highscore(Renderer& renderer, int points);
 		void show_highscore(Renderer& renderer);
 
@@ -26,6 +29,7 @@ class Highscore {
 		std::vector<Entry> m_scores;	
 		std::string m_savefile;
 		int const m_name_length;
+		int const m_top_ranks;
 
 		void sort();
 

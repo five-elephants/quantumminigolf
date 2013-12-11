@@ -556,6 +556,17 @@ Renderer::RenderHud(int lifes, int max_lifes, int points) {
     SDL_FreeSurface(txt);
 }
 
+
+void
+Renderer::RenderMessage(std::string const& msg) {
+   SDL_Surface* txt = TTF_RenderText_Solid(fntarc,
+         msg.c_str(),
+         hud_color);
+   SDL_Rect rcDest = { width/2 - txt->w/2, height/2 - txt->h/2, 0, 0 };
+   SDL_BlitSurface(txt, NULL, bBuffer, &rcDest);
+   SDL_FreeSurface(txt);
+}
+
 // Blit 
 // Blit the contents of bBuffer to the screen. 
 // Note that all RenderXXX functions only draw to bBuffer. I.E. 
