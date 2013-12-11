@@ -11,7 +11,8 @@ Highscore::Highscore(std::string const& filename,
 		int const top_ranks)
 	:	m_savefile(filename),
 		m_name_length(name_length),
-		m_top_ranks(top_ranks) {
+		m_top_ranks(top_ranks),
+		m_last_index(0) {
 	load(filename);
 }
 
@@ -40,6 +41,7 @@ Highscore::load(std::string const& fn) {
 			Entry entry;
 			strm >> entry.name;
 			strm >> entry.points;
+			entry.id = m_last_index++;
 			m_scores.push_back(entry);
 		}
 	}
@@ -77,6 +79,7 @@ Highscore::print() {
 void
 Highscore::add(std::string const& name, int points) {
 	Entry entry;
+	entry.id = m_last_index++;
 	entry.name = name;
 	entry.points = points;
 	m_scores.push_back(entry);
@@ -95,13 +98,14 @@ Highscore::is_new_highscore(int points) {
 		return true;
 }
 
-void
+unsigned int
 Highscore::get_new_highscore(Renderer& renderer, int points) {
 	SDL_Event ev;
 	bool done = false;
 	Entry e;
 	size_t char_i = 0;
 
+	e.id = m_last_index++;
 	e.name.resize(m_name_length, '-');
 	e.points = points;
 
@@ -125,17 +129,20 @@ Highscore::get_new_highscore(Renderer& renderer, int points) {
 
 	m_scores.push_back(e);
 	sort();
+
+	return e.id;
 }
 
 
 void
-Highscore::show_highscore(Renderer& renderer) {
+Highscore::show_highscore(Renderer& renderer, unsigned int highlight) {
 	bool done = false;
 
 	for(size_t pos=0; pos<std::min(10ul, m_scores.size()); ++pos) {
 		renderer.RenderHighscoreEntry(pos,
 				m_scores[pos].name, 
-				m_scores[pos].points);
+				m_scores[pos].points,
+				m_scores[pos].id == highlight);
 	}
 	renderer.Blit();
 

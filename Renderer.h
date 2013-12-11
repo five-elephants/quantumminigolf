@@ -53,9 +53,11 @@ public:
 	void RenderNewHighscore(std::string const& name);
 	void RenderHighscoreEntry(int position,
 			std::string const& name,
-			int points);
+			int points,
+			bool highlight=false);
 	void RenderHud(int lifes, int max_lifes, int points);
 	void RenderMessage(std::string const& msg);
+	void RenderBlank();
 
 	void Lock(void);
 	void Unlock(void);
@@ -84,6 +86,7 @@ private:
 
 	SDL_Color highscore_color_hot;
 	SDL_Color highscore_color_cold;
+	SDL_Color highscore_color_highlight;
 	SDL_Color hud_color;
 
 	int holex, holey, holer; // position and radius of the hole

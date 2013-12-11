@@ -27,6 +27,7 @@
 #include "quantumminigolf.h"
 
 #include <iostream>
+#include <limits>
 
 #ifdef VR
 #include "WebcamTracker.h"
@@ -119,7 +120,8 @@ int main(int argc, char **argv){
 	quantum = true;
 
 	while( !exit_request ) {
-		highscore.show_highscore(renderer);
+		highscore.show_highscore(renderer,
+				std::numeric_limits<unsigned int>::max());
 
 		Game game;
 		tracker.setGame(game);
@@ -262,15 +264,20 @@ int main(int argc, char **argv){
 
 	//		printf("rendered %d frames, quantum part framerate %2.1f fps. Goodbye\n", frames, framerate);
 			simulator.ClearWave();
+
+			SDL_Event evdummy;
+			SDL_PollEvent(&evdummy);
 		} while( !game.check_game_over() );
 
 		if( !exit_request ) {
+			unsigned int hi_id = std::numeric_limits<unsigned int>::max();
 			// show highscore
 			if( highscore.is_new_highscore(game.score()) ) {
-				highscore.get_new_highscore(renderer, game.score());
+				hi_id = highscore.get_new_highscore(renderer, game.score());
 			}
-			renderer.RenderTrack();
-			highscore.show_highscore(renderer);
+			//renderer.RenderTrack();
+			renderer.RenderBlank();
+			highscore.show_highscore(renderer, hi_id);
 		}
 	}
 

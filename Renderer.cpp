@@ -214,6 +214,9 @@ Renderer::Renderer(int width, int height, int flag, int holex, int holey, int ho
     highscore_color_cold.r = 196;
     highscore_color_cold.g = 255;
     highscore_color_cold.b = 190;
+    highscore_color_highlight.r = 255;
+    highscore_color_highlight.g = 10;
+    highscore_color_highlight.b = 10;
     hud_color.r = 240;
     hud_color.g = 255;
     hud_color.b = 0;
@@ -500,7 +503,7 @@ Renderer::RenderNewHighscore(std::string const& name) {
 
 
 void
-Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
+Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points, bool highlight) {
     //SDL_Color txt_color = { 255-pos*20, 0, 0, 255 };
     SDL_Color txt_color;
     double color_diff_r;
@@ -508,13 +511,17 @@ Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
     double color_diff_b;
     std::stringstream strm;
 
-    color_diff_r = highscore_color_cold.r - highscore_color_hot.r;
-    color_diff_g = highscore_color_cold.g - highscore_color_hot.g;
-    color_diff_b = highscore_color_cold.b - highscore_color_hot.b;
-    double rank = static_cast<double>(pos) / 10.0;
-    txt_color.r = highscore_color_hot.r + static_cast<unsigned char>(color_diff_r * rank);
-    txt_color.g = highscore_color_hot.g + static_cast<unsigned char>(color_diff_g * rank);
-    txt_color.b = highscore_color_hot.b + static_cast<unsigned char>(color_diff_b * rank);
+    if( !highlight ) {
+        color_diff_r = highscore_color_cold.r - highscore_color_hot.r;
+        color_diff_g = highscore_color_cold.g - highscore_color_hot.g;
+        color_diff_b = highscore_color_cold.b - highscore_color_hot.b;
+        double rank = static_cast<double>(pos) / 10.0;
+        txt_color.r = highscore_color_hot.r + static_cast<unsigned char>(color_diff_r * rank);
+        txt_color.g = highscore_color_hot.g + static_cast<unsigned char>(color_diff_g * rank);
+        txt_color.b = highscore_color_hot.b + static_cast<unsigned char>(color_diff_b * rank);
+    } else {
+        txt_color = highscore_color_highlight;
+    }
 
     strm << std::setw(2) << pos+1 
         << ". " << name 
@@ -524,7 +531,8 @@ Renderer::RenderHighscoreEntry(int pos, std::string const& name, int points) {
             strm.str().c_str(),
             txt_color);
 
-    SDL_Rect rcDest = { 200, 10 + pos*30, 0, 0 };
+    //SDL_Rect rcDest = { 200, 10 + pos*30, 0, 0 };
+    SDL_Rect rcDest = { width/2 - surf->w/2, 10 + pos*30, 0, 0 };
     SDL_BlitSurface(surf, NULL, bBuffer, &rcDest);
     
     SDL_FreeSurface(surf);
@@ -566,6 +574,14 @@ Renderer::RenderMessage(std::string const& msg) {
    SDL_BlitSurface(txt, NULL, bBuffer, &rcDest);
    SDL_FreeSurface(txt);
 }
+
+
+void
+Renderer::RenderBlank() {
+    SDL_FillRect(bBuffer, NULL, 0);
+    Blit();
+}
+
 
 // Blit 
 // Blit the contents of bBuffer to the screen. 
