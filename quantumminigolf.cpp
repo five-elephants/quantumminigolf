@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <limits>
+#include <cstdlib>
 
 #ifdef VR
 #include "WebcamTracker.h"
@@ -94,6 +95,7 @@ int main(int argc, char **argv){
 	struct timeval tv;
 	gettimeofday(&tv,0);
 	srand(tv.tv_sec + tv.tv_usec);
+	srandom(tv.tv_sec + tv.tv_usec);
 #endif
 
 #ifndef VR

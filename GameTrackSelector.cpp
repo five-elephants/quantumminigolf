@@ -1,5 +1,6 @@
 #include "GameTrackSelector.h"
 
+#include <cstdlib>
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -39,9 +40,8 @@ GameTrackSelector::GetTrack(bool* quantum) {
 
 void
 GameTrackSelector::next_track() {
-	if( ++trackiterator == cur_tier->end() ) {
-		trackiterator = cur_tier->begin();
-	}
+	size_t chose = random() % cur_tier->size();
+	trackiterator = cur_tier->begin() + chose;
 }
 
 bool
