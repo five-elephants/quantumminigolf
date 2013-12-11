@@ -30,7 +30,7 @@ def configure(conf):
 		'portvideo/common',
 		'portvideo/ext/tinyxml',
 	]
-	conf.check_cfg(args='--cflags --libs', package='sdl SDL_ttf', uselib_store='SDL')
+	conf.check_cfg(args='--cflags --libs', package='sdl SDL_ttf SDL_image', uselib_store='SDL')
 	conf.check_cxx(lib='fftw3f', uselib_store='FFTW3F')
 	conf.check_cxx(lib='dc1394', uselib_store='DC1394')
 

@@ -20,6 +20,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <SDL_image.h>
 
 // Constructor:
 // initialize all graphics buffers, load the complex color map and the fonts
@@ -94,8 +95,8 @@ Renderer::Renderer(int width, int height, int flag, int holex, int holey, int ho
 		cmapc = SDL_LoadBMP( "gfx/cmap.bmp" );
 		win = SDL_LoadBMP( "gfx/win.bmp" );
 		lose = SDL_LoadBMP( "gfx/lose.bmp" );                          
-        heart = SDL_LoadBMP("gfx/heart_35.bmp");
-        heart_empty = SDL_LoadBMP("gfx/heart_empty_35.bmp");
+        heart = IMG_Load("gfx/ket-heart.png");
+        heart_empty = IMG_Load("gfx/ket-empty.png");
 
 	if (cmapm == NULL)              
 	{                
