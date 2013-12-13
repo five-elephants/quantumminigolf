@@ -130,8 +130,15 @@ void WebcamTracker::GetHit(float *v, float *phi){
 
 	bool skipped=true; // flag indicating whether the last frame was skipped 
 						// because the club was not visible
+	bool exit_request = false;
 
-	while(SDL_PollEvent(&dummyevent)==0){ // SDL_PollEvent : emergency exit if the user presses any key
+	while(!exit_request){ // SDL_PollEvent : emergency exit if the user presses any key
+
+		SDL_PollEvent(&dummyevent);
+		if( (dummyevent.type == SDL_KEYDOWN) && (dummyevent.key.keysym.sym == SDLK_ESCAPE) ) {
+			exit_request = true;
+		}
+
 		sum=0;
 		poslast[0] = pos[0];
 		poslast[1] = pos[1];
@@ -246,7 +253,7 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		renderer->RenderBall(ix, iy);
 		//renderer->RenderCrossair(maxpos[0], maxpos[1], 8); // debug
 		renderer->RenderCrossair(fn[0], fn[1], crossairSize);
-		renderer->RenderMessage(strm.str());
+		//renderer->RenderMessage(strm.str()); // debug
 		renderer->Blit();
 
 		// compute difference vectors between

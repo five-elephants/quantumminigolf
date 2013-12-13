@@ -47,6 +47,15 @@ char fname[80];
 #define HEIGHT 320
 
 
+inline void debounce_event_queue(unsigned int msec) {
+	unsigned int t_start = SDL_GetTicks();
+
+	while( SDL_GetTicks() < t_start + msec ) {
+		SDL_Event ev;
+		SDL_PollEvent(&ev);
+	}
+}
+
 // main
 // put it all together...
 #ifdef WIN32  // no comment...
@@ -136,7 +145,7 @@ int main(int argc, char **argv){
 				break;
 			}
 
-			while (SDL_PollEvent(&dummyevent)==1){} // clear event buffer 
+			debounce_event_queue(100);
 
 			// for each new track, we have to rebuild the position propagator
 			if(quantum)
