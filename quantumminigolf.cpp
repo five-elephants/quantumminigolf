@@ -108,7 +108,8 @@ int main(int argc, char **argv){
 	Tracker& tracker = wctracker;
 	printf("adjust your webcam and press <ENTER> to start\n");
 	getc(stdin);
-	Renderer renderer(WIDTH, HEIGHT, SDL_HWSURFACE /*  | SDL_FULLSCREEN */, holex, holey, holer, rball);// | SDL_FULLSCREEN);
+	//Renderer renderer(WIDTH, HEIGHT, SDL_HWSURFACE [>  | SDL_FULLSCREEN <], holex, holey, holer, rball);// | SDL_FULLSCREEN);
+	Renderer renderer(WIDTH, HEIGHT, SDL_HWSURFACE | SDL_FULLSCREEN, holex, holey, holer, rball);// | SDL_FULLSCREEN);
 #endif //VR
 
 	ClassicSimulator csimulator(WIDTH, HEIGHT, &renderer, holex, holey, holer);
@@ -134,7 +135,9 @@ int main(int argc, char **argv){
 				exit_request = true;
 				break;
 			}
-				
+
+			while (SDL_PollEvent(&dummyevent)==1){} // clear event buffer 
+
 			// for each new track, we have to rebuild the position propagator
 			if(quantum)
 				simulator.BuildPositionPropagator(renderer.V);

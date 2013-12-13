@@ -583,6 +583,22 @@ Renderer::RenderBlank() {
 }
 
 
+void
+Renderer::RenderCameraFrame(unsigned char* image, int width, int heigth) {
+    SDL_Surface* image_surf;
+
+    image_surf = SDL_CreateRGBSurfaceFrom(image,
+            width,
+            height,
+            8,
+            width,
+            0xff, 0xff, 0xff, 0x00);
+
+    SDL_BlitSurface(image_surf, NULL, bBuffer, NULL);
+    SDL_FreeSurface(image_surf);
+}
+
+
 // Blit 
 // Blit the contents of bBuffer to the screen. 
 // Note that all RenderXXX functions only draw to bBuffer. I.E. 

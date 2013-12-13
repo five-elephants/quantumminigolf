@@ -58,6 +58,7 @@ public:
 	void RenderHud(int lifes, int max_lifes, int points);
 	void RenderMessage(std::string const& msg);
 	void RenderBlank();
+	void RenderCameraFrame(unsigned char* image, int width, int height);
 
 	void Lock(void);
 	void Unlock(void);

@@ -102,6 +102,11 @@ bool V4Linux2Camera::initCamera() {
     height = v4l2_form.fmt.pix.height;
     fps = 0;      
 
+        std::cout << "pixelformat: '";
+        for(int i=0; i<4; i++)
+                std::cout << static_cast<unsigned char>( (v4l2_form.fmt.pix.pixelformat >> i*8) & 0xff );
+        std::cout << "'" << std::endl;
+
 	if ((v4l2_form.fmt.pix.pixelformat != V4L2_PIX_FMT_YUYV) && (v4l2_form.fmt.pix.pixelformat != V4L2_PIX_FMT_UYVY) && (v4l2_form.fmt.pix.pixelformat != V4L2_PIX_FMT_YUV420)) {
 		printf("unsupported pixelformat: ");
 		if (v4l2_form.fmt.pix.pixelformat==V4L2_PIX_FMT_YUV410) printf("V4L2_PIX_FMT_YUV410\n");
@@ -296,8 +301,12 @@ unsigned char* V4Linux2Camera::getFrame()  {
         else if (pixelformat==V4L2_PIX_FMT_UYVY) uyvy2gray(width, height, cam_buffer, buffer);
         else if (pixelformat==V4L2_PIX_FMT_YUV420) memcpy(buffer,cam_buffer,width*height);
 	else {	
-		assert(false);
-		return NULL;
+		//assert(false);
+                std::cout << "unsupported pixel format with code '"
+                        << pixelformat
+                        << "' " << std::endl;
+                memcpy(buffer,cam_buffer,width*height);
+		//return NULL;
 	}
     }
 
@@ -557,3 +566,5 @@ int V4Linux2Camera::getCameraSettingStep(int mode) {
 	return 0;
 }
 
+
+/* vim: set et fenc=utf-8 ff=unix sts=8 sw=8 ts=8 : */

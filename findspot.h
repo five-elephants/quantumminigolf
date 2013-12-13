@@ -39,13 +39,14 @@ float findspot(unsigned char* img,
 		back_tmp += right_col;
 		
 		background = (float)back_tmp / (2.0*(float)winH + 2.0*(float)(winW-2));
+		//cout << "background = " << background << endl;
 		
 		avg_tmp = integrate(i+1, j+1, i+winH-1, j+winW-1, img, w);
 		average = (float)avg_tmp / (float)((winW-2)*(winH-2));
 	
 		if( average - background > max_corrected ) {
-			max_i = i;
-			max_j = j;
+			max_i = i + winH/2;
+			max_j = j + winW/2;
 			max_corrected = average - background;
 		}
 	
@@ -67,8 +68,8 @@ float findspot(unsigned char* img,
 			average -= (float)minus_avg / (float)(2*winH);
 
 			if( average - background > max_corrected ) {
-				max_i = i;
-				max_j = j;
+				max_i = i + winH/2;
+				max_j = j + winW/2;
 				max_corrected = average - background;
 			}
 		}

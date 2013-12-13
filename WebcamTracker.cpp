@@ -20,6 +20,7 @@
 #include "WebcamTracker.h"
 
 #include "findspot.h"
+#include <sstream>
 
 //WebcamTracker 
 //the constructor, copy arguments, load the calibration file and init the camera
@@ -157,7 +158,13 @@ void WebcamTracker::GetHit(float *v, float *phi){
 			}
 		}*/
 
-		max = findspot(image, 320, 240, 8, 8, maxpos[1], maxpos[0]);
+		max = findspot(image,
+				camera->getWidth(),
+				camera->getHeight(),
+				16,
+				16,
+				maxpos[1],
+				maxpos[0]);
 		
 		float x, y;
 		x = maxpos[0];
@@ -168,7 +175,10 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		//renderer->RenderCrossair(x, y, crossairSize*0.25);
 		//renderer->RenderCrossair(maxpos[0], maxpos[1], crossairSize*0.25);
 		//renderer->Blit();
-		//cout << "maxpos[0] = " << maxpos[0] << "  maxpos[1] = " << maxpos[1] << endl;
+		cout << "maxpos[0] = " << maxpos[0] << "  maxpos[1] = " << maxpos[1] << "  max = " << max << endl;
+
+		stringstream strm;
+		strm << "(" << maxpos[0] << ", " << maxpos[1] << ") = " << max;
 
 		//skip the frame if it is clear that the brightest point cannot be the club
 		/*if(max < 50) {skipped=true; continue;}
@@ -176,7 +186,7 @@ void WebcamTracker::GetHit(float *v, float *phi){
 			(maxpos[1] - cy)*(maxpos[1] - cy)) > 10*10)
 		{skipped=true; continue;}*/
 		
-		if( (max < 150) 
+		if( (max < 100) 
 		/*	|| (sqrt((maxpos[0] - cx)*(maxpos[0] - cx) + (maxpos[1] - cy)*(maxpos[1] - cy)) > 10*10)*/ )
 		{
 			
@@ -205,7 +215,7 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		pos[1] = pos[1] / sum;
 		Uint32 clock_after_pos = SDL_GetTicks();
 
-		//cout << pos[0] << " " << pos[1] << " " << (float)max << endl;
+		cout << pos[0] << " " << pos[1] << " " << (float)max << endl;
 
 		// do not look for a hit if the last frame had been skipped
 		if(skipped)
@@ -232,8 +242,11 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		
 		// visualize position
 		renderer->RenderTrack();
+		//renderer->RenderCameraFrame(image, camera->getWidth(), camera->getHeight());// debug
 		renderer->RenderBall(ix, iy);
+		//renderer->RenderCrossair(maxpos[0], maxpos[1], 8); // debug
 		renderer->RenderCrossair(fn[0], fn[1], crossairSize);
+		renderer->RenderMessage(strm.str());
 		renderer->Blit();
 
 		// compute difference vectors between
