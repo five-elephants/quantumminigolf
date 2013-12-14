@@ -48,7 +48,9 @@ public:
 
 	int getix(){return ix;}
 	int getiy(){return iy;}
-	
+
+	void set_calib_mode(bool c) { calib_mode = c; }
+
 private:
 	// conversion between camera and screen coordinates
 	void cam2scr(float *x, float *y);
@@ -62,6 +64,8 @@ private:
 
 	float xx, xy, yx, yy; // cam2screen matrix
 	float cx, cy;		  // coordinates of the "Abschlag" in cam coordinates
+
+	bool calib_mode;
 
 	// handle to the webcam
 	CameraEngine *camera;

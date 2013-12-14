@@ -249,11 +249,14 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		
 		// visualize position
 		renderer->RenderTrack();
-		//renderer->RenderCameraFrame(image, camera->getWidth(), camera->getHeight());// debug
+		if( calib_mode )
+			renderer->RenderCameraFrame(image, camera->getWidth(), camera->getHeight());
 		renderer->RenderBall(ix, iy);
-		//renderer->RenderCrossair(maxpos[0], maxpos[1], 8); // debug
+		if( calib_mode )
+			renderer->RenderCrossair(maxpos[0], maxpos[1], 8);
 		renderer->RenderCrossair(fn[0], fn[1], crossairSize);
-		//renderer->RenderMessage(strm.str()); // debug
+		if( calib_mode )
+			renderer->RenderMessage(strm.str());
 		renderer->Blit();
 
 		// compute difference vectors between

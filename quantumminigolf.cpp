@@ -94,6 +94,8 @@ int main(int argc, char **argv){
 	bool quantum=true;  // quantum or classical mode ?
 	bool exit_request = false;
 
+	bool calib_mode = false;
+
 	SDL_Event dummyevent;
 
 	// seed the random number generator
@@ -107,13 +109,24 @@ int main(int argc, char **argv){
 	srandom(tv.tv_sec + tv.tv_usec);
 #endif
 
+	// parse arguments
+	if( argc > 1 ) {
+		if( std::string(argv[1]) == "calib" )
+			calib_mode = true;
+	}
+
+	if( calib_mode )
+		std::cout << "running in calibration mode" << std::endl;
+
 #ifndef VR
 	SoftwareTracker stracker(WIDTH, HEIGHT, ix, iy, rball, rvmax, NULL);
 	Tracker& tracker = stracker;
-	Renderer renderer(WIDTH, HEIGHT, SDL_HWSURFACE /*| SDL_FULLSCREEN*/, holex, holey, holer, rball);// | SDL_FULLSCREEN);
+	//Renderer renderer(WIDTH, HEIGHT, SDL_HWSURFACE [>| SDL_FULLSCREEN<], holex, holey, holer, rball);// | SDL_FULLSCREEN);
+	Renderer renderer(WIDTH, HEIGHT, SDL_HWSURFACE | SDL_FULLSCREEN, holex, holey, holer, rball);// | SDL_FULLSCREEN);
 #endif
 #ifdef VR
 	WebcamTracker wctracker(WIDTH, HEIGHT, ix, iy, rball, rvmax, NULL);
+	wctracker.set_calib_mode(calib_mode);
 	Tracker& tracker = wctracker;
 	printf("adjust your webcam and press <ENTER> to start\n");
 	getc(stdin);
