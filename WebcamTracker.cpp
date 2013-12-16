@@ -21,6 +21,7 @@
 
 #include "findspot.h"
 #include <sstream>
+#include <cmath>
 
 //WebcamTracker 
 //the constructor, copy arguments, load the calibration file and init the camera
@@ -135,9 +136,14 @@ void WebcamTracker::GetHit(float *v, float *phi){
 	while(!exit_request){ // SDL_PollEvent : emergency exit if the user presses any key
 
 		SDL_PollEvent(&dummyevent);
-		if( (dummyevent.type == SDL_KEYDOWN) && (dummyevent.key.keysym.sym == SDLK_ESCAPE) ) {
-			exit_request = true;
+		if( dummyevent.type == SDL_KEYDOWN ) {
+			switch(dummyevent.key.keysym.sym) {
+				case SDLK_ESCAPE:
+					exit_request = true;
+					break;
+			}
 		}
+
 
 		sum=0;
 		poslast[0] = pos[0];
@@ -273,14 +279,45 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		float nflny = sqrt(ftl[0]*ftl[0]+ftl[1]*ftl[1] - nflnx*nflnx);
 
 		// finally, look for a hit
-		if(ftl[0]*fln[0]+ftl[1]*fln[1] < 0 &&
-			ftn[0]*fln[0]+ftn[1]*fln[1] > 0  && nflny < 50){
-				//camera->pauseCamera();
-				*v = sqrt(fln[0]*fln[0]+ fln[1]*fln[1])/(clock-clocklast);
-				*phi = atan(fln[1]/fln[0]);
-				if(*v > vmax)
-					*v=vmax;
-				return;
+		if( !calib_mode ) {
+			// test if this and last position are within the playing area
+			if( (fn[0] > 0) && (fn[0] < w)
+					&& (fn[1] > 0) && (fn[1] < h)
+			 		&& (fl[0] > 0) && (fl[0] < w)
+					&& (fl[1] > 0) && (fl[1] < h) ) {
+
+				if(ftl[0]*fln[0]+ftl[1]*fln[1] < 0 &&
+					ftn[0]*fln[0]+ftn[1]*fln[1] > 0  && nflny < 25){
+						//camera->pauseCamera();
+						*v = sqrt(fln[0]*fln[0]+ fln[1]*fln[1])/(clock-clocklast);
+						//*phi = atan(fln[1]/fln[0]);
+						*phi = atan2(-fln[1], -fln[0]);
+						if(*v > vmax )
+							*v=vmax;
+
+						//if( (*phi > M_PI/2.0) && (*phi < 3.0*M_PI/2.0) && (*v < vmax) )
+						if( (*v < vmax) && ((*phi < M_PI/2.0) && (*phi > -M_PI/2.0)) )
+							return;
+				}
+			}
+		} else {
+			if( dummyevent.type == SDL_KEYDOWN ) {
+				switch(dummyevent.key.keysym.sym) {
+					case SDLK_1:
+						calib_center_x = maxpos[0];
+						calib_center_y = maxpos[1];
+						break;
+
+					case SDLK_2:
+						calib_bottom_right_x = maxpos[0];
+						calib_bottom_right_y = maxpos[1];
+						break;
+
+					case SDLK_c:
+						calibrate("calibration.dat");
+						break;
+				}
+			}
 		}
 	}
 }
@@ -304,4 +341,38 @@ void WebcamTracker::cam2scr(float *x, float *y){
 // not operational yet
 void WebcamTracker::scr2cam(float *x, float *y){
 	*x -= 320;
+}
+
+
+void
+WebcamTracker::calibrate(std::string const& filename) {
+	std::ofstream fout(filename.c_str());
+	
+	// get rotation phi between camera and projection
+	float ux = calib_bottom_right_x - calib_center_x;
+	float uy = calib_bottom_right_y - calib_center_y;
+	float vx = w - ix;
+	float vy = -iy;
+	float phi = std::acos( (ux*vx + uy*vy) / std::sqrt( (ux*ux + uy*uy) * (vx*vx + vy*vy) ) );
+
+	// create rotation matrix
+	float axx = std::cos(phi);
+	float axy = -std::sin(phi);
+	float ayx = std::sin(phi);
+	float ayy = std::sin(phi);
+
+	// rotate measured points from camera and determine x- and y-scaling
+	float rux = axx * ux + axy * uy;
+	float ruy = ayx * uy + ayy * uy;
+	float scale_x = vx / rux;
+	float scale_y = vy / ruy;
+
+	// compute transformation matrix (scale ° 
+	
+
+	fout << calib_center_x << '\n';
+	fout << calib_center_y << '\n';
+	fout << "0\n0\n0\n0\n";
+	fout << scale_x << ' ' << 0.0 << '\n';
+	fout << 0.0 << ' ' << scale_y << '\n';
 }

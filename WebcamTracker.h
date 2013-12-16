@@ -57,6 +57,8 @@ private:
 	void scr2cam(float *x, float *y); //scr2cam is not operational yet.
 									  // provided only for future compatibility
 
+	void calibrate(std::string const& filename);
+
 	int rball;   // radius of the ball
 
 	int cam;	// flag indicating whether a camera is present
@@ -66,6 +68,9 @@ private:
 	float cx, cy;		  // coordinates of the "Abschlag" in cam coordinates
 
 	bool calib_mode;
+
+	float calib_center_x, calib_center_y;
+	float calib_bottom_right_x, calib_bottom_right_y;
 
 	// handle to the webcam
 	CameraEngine *camera;
