@@ -17,7 +17,7 @@ Game::win_track() {
 
 void
 Game::fail_track() {
-	m_points -= 20*m_mult_points;
+	m_points -= 20*(m_mult_points-1);
 	m_lifes -= 1;
 }
 
