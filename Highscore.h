@@ -15,7 +15,7 @@ class Highscore {
 		
 		Highscore(std::string const& filename,
 				int const name_length=5,
-				int const top_ranks=10);
+				int const top_ranks=9);
 		~Highscore();
 
 		void load(std::string const& filename);

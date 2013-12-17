@@ -176,6 +176,7 @@ Renderer::Renderer(int width, int height, int flag, int holex, int holey, int ho
 		fntsml = TTF_OpenFont( "fonts/default.ttf", 12 );
 		fntbg = TTF_OpenFont( "fonts/default.ttf", 24 );    
         fntarc = TTF_OpenFont("fonts/press-start-2p/PressStart2P.ttf", 20);
+        fntarc_sml = TTF_OpenFont("fonts/press-start-2p/PressStart2P.ttf", 12);
 #endif LINUX
 
 #ifdef WIN32
@@ -598,6 +599,22 @@ Renderer::RenderCameraFrame(unsigned char* image, int width, int heigth) {
     SDL_FreeSurface(image_surf);
 }
 
+void
+Renderer::RenderCredits() {
+	SDL_Surface* txt = TTF_RenderText_Solid(fntarc_sml,
+			"QuantumMinigolf created by Friedemann Reinhard",
+			hud_color);
+	SDL_Rect rcDest = { width/2 - txt->w/2, height - 2*txt->h -4, 0, 0 };
+	SDL_BlitSurface(txt, NULL, bBuffer, &rcDest);
+	SDL_FreeSurface(txt);
+
+	SDL_Surface* txt2 = TTF_RenderText_Solid(fntarc_sml,
+			"github.com/five-elephants/quantumminigolf",
+			hud_color);
+	SDL_Rect rcDest2 = { width/2 - txt2->w/2, height - 1*txt2->h, 0, 0 };
+	SDL_BlitSurface(txt2, NULL, bBuffer, &rcDest2);
+	SDL_FreeSurface(txt2);
+}
 
 // Blit 
 // Blit the contents of bBuffer to the screen. 

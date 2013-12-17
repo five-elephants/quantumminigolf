@@ -138,12 +138,14 @@ void
 Highscore::show_highscore(Renderer& renderer, unsigned int highlight) {
 	bool done = false;
 
-	for(size_t pos=0; pos<std::min(10ul, m_scores.size()); ++pos) {
+	renderer.RenderBlank();
+	for(size_t pos=0; pos<std::min(static_cast<size_t>(m_top_ranks), m_scores.size()); ++pos) {
 		renderer.RenderHighscoreEntry(pos,
 				m_scores[pos].name, 
 				m_scores[pos].points,
 				m_scores[pos].id == highlight);
 	}
+	renderer.RenderCredits();
 	renderer.Blit();
 
 	SDL_Event dummyevent;

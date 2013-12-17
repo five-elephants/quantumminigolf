@@ -59,6 +59,7 @@ public:
 	void RenderMessage(std::string const& msg);
 	void RenderBlank();
 	void RenderCameraFrame(unsigned char* image, int width, int height);
+	void RenderCredits();
 
 	void Lock(void);
 	void Unlock(void);
@@ -84,6 +85,7 @@ private:
 	TTF_Font *fntsml; 
 	TTF_Font *fntbg;
 	TTF_Font* fntarc;
+	TTF_Font* fntarc_sml;
 
 	SDL_Color highscore_color_hot;
 	SDL_Color highscore_color_cold;
