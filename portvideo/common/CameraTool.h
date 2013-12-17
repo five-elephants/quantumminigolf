@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../linux/DC1394Camera.h"
-#include "../linux/V4LinuxCamera.h"
 #include "../linux/V4Linux2Camera.h"
 #endif
 
@@ -51,7 +50,7 @@
 class CameraTool
 {
 public:
-	
+		
 	static CameraEngine* findCamera(const char* config_file);
 	static void listDevices();
 };
