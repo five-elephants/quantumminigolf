@@ -27,7 +27,7 @@ GameTrackSelector::GetTrack(bool* quantum) {
 	csimulator->hard = (*trackiterator)->hard;
 	csimulator->soft = (*trackiterator)->soft;
 	renderer->RenderTrack();
-	renderer->RenderMessage("(hit button to start)");
+	renderer->RenderClubMark();
 	renderer->Blit();
 
 	SDL_WaitEvent(&ev);

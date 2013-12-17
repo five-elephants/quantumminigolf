@@ -60,6 +60,7 @@ public:
 	void RenderBlank();
 	void RenderCameraFrame(unsigned char* image, int width, int height);
 	void RenderCredits();
+	void RenderClubMark();
 
 	void Lock(void);
 	void Unlock(void);

@@ -601,18 +601,42 @@ Renderer::RenderCameraFrame(unsigned char* image, int width, int heigth) {
 
 void
 Renderer::RenderCredits() {
+	{
+		SDL_Surface* txt = TTF_RenderText_Solid(fntarc_sml,
+				"QuantumMinigolf created by Friedemann Reinhard",
+				hud_color);
+		SDL_Rect rcDest = { width/2 - txt->w/2, height - 2*txt->h -4, 0, 0 };
+		SDL_BlitSurface(txt, NULL, bBuffer, &rcDest);
+		SDL_FreeSurface(txt);
+	}
+
+	{
+		SDL_Surface* txt = TTF_RenderText_Solid(fntarc_sml,
+				"github.com/five-elephants/quantumminigolf",
+				hud_color);
+		SDL_Rect rcDest = { width/2 - txt->w/2, height - 1*txt->h, 0, 0 };
+		SDL_BlitSurface(txt, NULL, bBuffer, &rcDest);
+		SDL_FreeSurface(txt);
+	}
+}
+
+
+void
+Renderer::RenderClubMark() {
 	SDL_Surface* txt = TTF_RenderText_Solid(fntarc_sml,
-			"QuantumMinigolf created by Friedemann Reinhard",
+			"place club here",
 			hud_color);
-	SDL_Rect rcDest = { width/2 - txt->w/2, height - 2*txt->h -4, 0, 0 };
+	SDL_Rect rcDest = { width/2 - txt->w/2, height/2 -55, 0, 0 };
 	SDL_BlitSurface(txt, NULL, bBuffer, &rcDest);
-	SDL_FreeSurface(txt);
+	RenderCrossair(width/2, height/2, 40);
 
 	SDL_Surface* txt2 = TTF_RenderText_Solid(fntarc_sml,
-			"github.com/five-elephants/quantumminigolf",
+			"and press button to start",
 			hud_color);
-	SDL_Rect rcDest2 = { width/2 - txt2->w/2, height - 1*txt2->h, 0, 0 };
+	SDL_Rect rcDest2 = { width/2 - txt2->w/2, height/2 +50, 0, 0 };
 	SDL_BlitSurface(txt2, NULL, bBuffer, &rcDest2);
+
+	SDL_FreeSurface(txt);
 	SDL_FreeSurface(txt2);
 }
 
