@@ -40,6 +40,8 @@ GameTrackSelector::GetTrack(bool* quantum) {
 
 void
 GameTrackSelector::next_track() {
+	if( cur_tier->empty() )
+		return;
 	size_t chose = random() % cur_tier->size();
 	trackiterator = cur_tier->begin() + chose;
 }

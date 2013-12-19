@@ -129,6 +129,7 @@ Highscore::get_new_highscore(Renderer& renderer, int points) {
 
 	m_scores.push_back(e);
 	sort();
+	save(m_savefile);
 
 	return e.id;
 }
