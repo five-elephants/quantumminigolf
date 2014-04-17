@@ -20,11 +20,16 @@ does not seem to be maintained any longer.
 
 * Instead of Makefiles the build-tool waf is used. You can compile the project
   using:
+
 > $ ./waf configure
+
 > $ ./waf build
+
   The binary is then in ./build/quantumminigolf
   To build the virtual reality version use
+
 > $ ./waf configure --vr
+
   The option "--debug" is also available to build with debug symbols. 
 
 * Code for camera tracking of the golf club (WebcamTracker.cpp) was tweaked for
