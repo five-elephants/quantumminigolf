@@ -44,10 +44,8 @@ WebcamTracker::WebcamTracker( int w, int h,
 		assert(false);
 		return;
 	}
-	float tx, ty;
+
 	calfile >> cx; calfile >> cy;
-	calfile >> tx; calfile >> ty;
-	calfile >> tx; calfile >> ty;
 	calfile >> xx; calfile >> xy;
 	calfile >> yx; calfile >> yy;
 	calfile.close();
@@ -133,10 +131,13 @@ void WebcamTracker::GetHit(float *v, float *phi){
 						// because the club was not visible
 	bool exit_request = false;
 
-	while(!exit_request){ // SDL_PollEvent : emergency exit if the user presses any key
 
-		SDL_PollEvent(&dummyevent);
-		if( dummyevent.type == SDL_KEYDOWN ) {
+	while(!exit_request){ // SDL_PollEvent : emergency exit if the user presses any key
+		// stringstream for printing key stroke in calib mode
+		stringstream key_strm;
+
+		int have_event = SDL_PollEvent(&dummyevent);
+		if( have_event && dummyevent.type == SDL_KEYDOWN ) {
 			switch(dummyevent.key.keysym.sym) {
 				case SDLK_ESCAPE:
 					exit_request = true;
@@ -191,7 +192,7 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		cout << "maxpos[0] = " << maxpos[0] << "  maxpos[1] = " << maxpos[1] << "  max = " << max << endl;
 
 		stringstream strm;
-		strm << "(" << maxpos[0] << ", " << maxpos[1] << ") = " << max;
+		strm << " (" << maxpos[0] << ", " << maxpos[1] << ") = " << max;
 
 		//skip the frame if it is clear that the brightest point cannot be the club
 		/*if(max < 50) {skipped=true; continue;}
@@ -261,9 +262,6 @@ void WebcamTracker::GetHit(float *v, float *phi){
 		if( calib_mode )
 			renderer->RenderCrossair(maxpos[0], maxpos[1], 8);
 		renderer->RenderCrossair(fn[0], fn[1], crossairSize);
-		if( calib_mode )
-			renderer->RenderMessage(strm.str());
-		renderer->Blit();
 
 		// compute difference vectors between
 		// fln: last and current position
@@ -301,24 +299,31 @@ void WebcamTracker::GetHit(float *v, float *phi){
 				}
 			}
 		} else {
-			if( dummyevent.type == SDL_KEYDOWN ) {
+			if( have_event && dummyevent.type == SDL_KEYDOWN ) {
 				switch(dummyevent.key.keysym.sym) {
 					case SDLK_1:
 						calib_center_x = maxpos[0];
 						calib_center_y = maxpos[1];
+						key_strm << "1";
 						break;
 
 					case SDLK_2:
 						calib_bottom_right_x = maxpos[0];
 						calib_bottom_right_y = maxpos[1];
+						key_strm << "2";
 						break;
 
 					case SDLK_c:
 						calibrate("calibration.dat");
+						key_strm << "c";
 						break;
 				}
 			}
 		}
+
+		if( calib_mode )
+			renderer->RenderMessage(key_strm.str()+strm.str());
+		renderer->Blit();
 	}
 }
 
@@ -343,6 +348,9 @@ void WebcamTracker::scr2cam(float *x, float *y){
 	*x -= 320;
 }
 
+float length(float x, float y) {
+	return std::sqrt(x*x+y*y);
+}
 
 void
 WebcamTracker::calibrate(std::string const& filename) {
@@ -351,28 +359,34 @@ WebcamTracker::calibrate(std::string const& filename) {
 	// get rotation phi between camera and projection
 	float ux = calib_bottom_right_x - calib_center_x;
 	float uy = calib_bottom_right_y - calib_center_y;
-	float vx = w - ix;
-	float vy = -iy;
-	float phi = std::acos( (ux*vx + uy*vy) / std::sqrt( (ux*ux + uy*uy) * (vx*vx + vy*vy) ) );
+	float vx = w-ix;
+	float vy = h - iy;
+	float phi_u = std::atan2(uy,ux);
+	float phi_v = std::atan2(vy,vx);
+	float phi = phi_v-phi_u;
 
 	// create rotation matrix
 	float axx = std::cos(phi);
 	float axy = -std::sin(phi);
 	float ayx = std::sin(phi);
-	float ayy = std::sin(phi);
+	float ayy = std::cos(phi);
 
 	// rotate measured points from camera and determine x- and y-scaling
 	float rux = axx * ux + axy * uy;
-	float ruy = ayx * uy + ayy * uy;
-	float scale_x = vx / rux;
-	float scale_y = vy / ruy;
-
+	float ruy = ayx * ux + ayy * uy;
+	//float scale_x = vx / rux;
+	//float scale_y = vy / ruy;
+	float scale = length(vx,vy)/length(ux,uy);
 	// compute transformation matrix (scale ° 
 	
 
 	fout << calib_center_x << '\n';
 	fout << calib_center_y << '\n';
-	fout << "0\n0\n0\n0\n";
-	fout << scale_x << ' ' << 0.0 << '\n';
-	fout << 0.0 << ' ' << scale_y << '\n';
+	fout << scale*axx << ' ' << scale*axy << '\n';
+	fout << scale*ayx << ' ' << scale*ayy << '\n';
+	fout << phi << ' ' << scale << '\n';
+	fout << phi_u << ' ' << phi_v << '\n';
+	fout << ux << ' ' << uy << '\n';
+	fout << vx << ' ' << vy << '\n';
+	fout << calib_bottom_right_x << ' ' << calib_bottom_right_y << '\n';
 }

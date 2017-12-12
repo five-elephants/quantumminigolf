@@ -36,6 +36,29 @@ does not seem to be maintained any longer.
   our needs. To avoid unintended hits of the ball it is no longer possible to
   shoot the ball to the right, but only to the left towards the goal.
 
+Calibration mode
+----------------
+
+Since this forked version of the game was only played with a projector and a
+webcam mounted next to it, we had the problem of having to calibrate the camera
+viewport to screen coordinates.
+
+This problem can become a bit non-trivial in general, see [this
+PDF](https://www.geometrictools.com/Documentation/PerspectiveMappings.pdf).
+Therefore, we decided to constrain the camera position in such a way that its
+plane of focus is parallel to the plane of focus of the projector, thus leaving
+only two degrees of freedom for the calibration. These degrees of freedom are a rotation angle and a scaling factor.
+
+To calibrate, do the following:
+
+1. Calibration can be started by calling `quantumminigolf calib`.
+2. Put the club at the point marked in blue and press `1`.
+3. Put the club at the bottom right screen corner and press `2`.
+4. Press `c`
+5. exit the game (`Esc`)
+6. `cp calibration.dat results.dat`
+
+Now you can start the game normally and the camera should be calibrated.
 
 Credits
 -------
